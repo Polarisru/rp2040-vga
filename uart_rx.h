@@ -8,14 +8,17 @@
 
 typedef enum
 {
-    UART_RX_LINE_TYPE_HEADER = 0,
-    UART_RX_LINE_TYPE_TEXT   = 1
+    UART_RX_LINE_TYPE_HEADER = 0,   /* 0:<num_lines>:<font_height>          */
+    UART_RX_LINE_TYPE_TEXT   = 1,   /* <N>:<text>:<color>                   */
+    UART_RX_CMD_FILL         = 2,   /* F:<color>                            */
+    UART_RX_CMD_RECT         = 3,   /* R:<x1>:<y1>:<x2>:<y2>:<color>       */
+    UART_RX_CMD_TEXT         = 4,   /* T:<x>:<y>:<color>:<font>:<text>      */
 } uart_rx_line_type_t;
 
 typedef struct
 {
     uart_rx_line_type_t type;
-    uint16_t line_index;
+    uint16_t line_index;            /* valid for HEADER and TEXT types only */
     union
     {
         struct
@@ -26,8 +29,24 @@ typedef struct
         struct
         {
             const char *text;
-            uint32_t color;
+            uint32_t    color;
         } text;
+        struct
+        {
+            uint8_t color;          /* 0..7 */
+        } fill;
+        struct
+        {
+            uint16_t x1, y1, x2, y2;
+            uint8_t  color;         /* 0..7 */
+        } rect;
+        struct
+        {
+            uint16_t    x, y;
+            uint8_t     color;      /* 0..7 */
+            uint8_t     font;       /* 0..2 */
+            const char *text;
+        } draw_text;
     } data;
 } uart_rx_message_t;
 

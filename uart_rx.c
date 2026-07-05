@@ -72,6 +72,75 @@ static bool parse_u32_strict(const char *s, uint32_t *value)
     return true;
 }
 
+/* F:<color> */
+static bool parse_cmd_fill(uart_rx_t *ctx, char *payload, uart_rx_message_t *msg)
+{
+    uint16_t color;
+    if (!parse_u16_strict(payload, &color) || color > 7U)
+    {
+        report_error(ctx, payload, "F: invalid color (0..7)");
+        return false;
+    }
+    msg->type        = UART_RX_CMD_FILL;
+    msg->data.fill.color = (uint8_t)color;
+    return true;
+}
+
+/* R:<x1>:<y1>:<x2>:<y2>:<color> */
+static bool parse_cmd_rect(uart_rx_t *ctx, char *payload, uart_rx_message_t *msg)
+{
+    char *p = payload;
+    char *tok;
+    uint16_t fields[5];
+
+    for (int i = 0; i < 5; i++)
+    {
+        tok = strchr(p, ':');
+        if (i < 4 && tok == NULL) { report_error(ctx, payload, "R: too few fields"); return false; }
+        if (tok != NULL) *tok = '\0';
+        if (!parse_u16_strict(p, &fields[i])) { report_error(ctx, p, "R: invalid field"); return false; }
+        if (tok != NULL) p = tok + 1;
+    }
+
+    if (fields[4] > 7U) { report_error(ctx, payload, "R: invalid color (0..7)"); return false; }
+
+    msg->type           = UART_RX_CMD_RECT;
+    msg->data.rect.x1   = fields[0];
+    msg->data.rect.y1   = fields[1];
+    msg->data.rect.x2   = fields[2];
+    msg->data.rect.y2   = fields[3];
+    msg->data.rect.color = (uint8_t)fields[4];
+    return true;
+}
+
+/* T:<x>:<y>:<color>:<font>:<text> */
+static bool parse_cmd_text(uart_rx_t *ctx, char *payload, uart_rx_message_t *msg)
+{
+    char *p = payload;
+    char *tok;
+    uint16_t nums[4];   /* x, y, color, font */
+
+    for (int i = 0; i < 4; i++)
+    {
+        tok = strchr(p, ':');
+        if (tok == NULL) { report_error(ctx, payload, "T: too few fields"); return false; }
+        *tok = '\0';
+        if (!parse_u16_strict(p, &nums[i])) { report_error(ctx, p, "T: invalid field"); return false; }
+        p = tok + 1;
+    }
+
+    if (nums[2] > 7U) { report_error(ctx, payload, "T: invalid color (0..7)"); return false; }
+    if (nums[3] > 2U) { report_error(ctx, payload, "T: invalid font (0..2)");  return false; }
+
+    msg->type                 = UART_RX_CMD_TEXT;
+    msg->data.draw_text.x     = nums[0];
+    msg->data.draw_text.y     = nums[1];
+    msg->data.draw_text.color = (uint8_t)nums[2];
+    msg->data.draw_text.font  = (uint8_t)nums[3];
+    msg->data.draw_text.text  = p;   /* remainder of buffer — valid until next poll byte */
+    return true;
+}
+
 static void parse_line(uart_rx_t *ctx, char *line)
 {
     char *first_colon;
@@ -82,6 +151,22 @@ static void parse_line(uart_rx_t *ctx, char *line)
     if ((line == NULL) || (*line == '\0'))
     {
         report_error(ctx, "", "empty line");
+        return;
+    }
+
+    /* Single-letter commands: F, R, T */
+    if ((line[0] == 'F' || line[0] == 'R' || line[0] == 'T') && line[1] == ':')
+    {
+        char cmd     = line[0];
+        char *payload = line + 2;
+        bool ok = false;
+
+        if      (cmd == 'F') ok = parse_cmd_fill(ctx, payload, &msg);
+        else if (cmd == 'R') ok = parse_cmd_rect(ctx, payload, &msg);
+        else                 ok = parse_cmd_text(ctx, payload, &msg);
+
+        if (ok && ctx->message_cb != NULL)
+            ctx->message_cb(&msg, ctx->user_ctx);
         return;
     }
 

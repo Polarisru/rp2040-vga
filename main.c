@@ -38,20 +38,45 @@ static void logic_on_uart_message(const uart_rx_message_t *message, void *user_c
 {
     logic_context_t *logic = (logic_context_t *)user_ctx;
 
-    if (message->type == UART_RX_LINE_TYPE_HEADER)
+    switch (message->type)
     {
-        logic->max_lines = message->data.header.number_of_lines;
-        logic->font_height = message->data.header.font_height;
-    }
-    else
-    {
-        if (message->line_index <= logic->max_lines)
-        {
-            const char *text = message->data.text.text;
-            uint32_t color = message->data.text.color;
-            (void)text;
-            (void)color;
-        }
+        case UART_RX_LINE_TYPE_HEADER:
+            logic->max_lines  = message->data.header.number_of_lines;
+            logic->font_height = message->data.header.font_height;
+            break;
+
+        case UART_RX_LINE_TYPE_TEXT:
+            if (message->line_index <= logic->max_lines)
+            {
+                const char *text  = message->data.text.text;
+                uint32_t    color = message->data.text.color;
+                (void)text;
+                (void)color;
+            }
+            break;
+
+        case UART_RX_CMD_FILL:
+            fill_screen(message->data.fill.color);
+            break;
+
+        case UART_RX_CMD_RECT:
+            draw_rect(message->data.rect.x1,
+                      message->data.rect.y1,
+                      message->data.rect.x2,
+                      message->data.rect.y2,
+                      message->data.rect.color);
+            break;
+
+        case UART_RX_CMD_TEXT:
+            draw_text(message->data.draw_text.x,
+                      message->data.draw_text.y,
+                      message->data.draw_text.text,
+                      (font_id_t)message->data.draw_text.font,
+                      message->data.draw_text.color);
+            break;
+
+        default:
+            break;
     }
 }
 

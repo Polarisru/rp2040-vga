@@ -157,6 +157,20 @@ void fill_screen(uint8_t color)
     memset(vga_data_array, (color & 0x07) | ((color & 0x07) << 3), GUI_SIZE);
 }
 
+void draw_rect(int x1, int y1, int x2, int y2, uint8_t color)
+{
+    if (x1 > x2) { int t = x1; x1 = x2; x2 = t; }
+    if (y1 > y2) { int t = y1; y1 = y2; y2 = t; }
+    if (x1 < 0) x1 = 0;
+    if (y1 < 0) y1 = 0;
+    if (x2 >= GUI_WIDTH)  x2 = GUI_WIDTH  - 1;
+    if (y2 >= GUI_HEIGHT) y2 = GUI_HEIGHT - 1;
+
+    for (int y = y1; y <= y2; y++)
+        for (int x = x1; x <= x2; x++)
+            drawPixelMasked(x, y, color);
+}
+
 void drawPixel(int x, int y, char color)
 {
     if (x >= GUI_WIDTH) 
