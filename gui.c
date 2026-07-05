@@ -8,6 +8,9 @@
 #include "rgb.pio.h"
 #include "fonts.h"
 #include "gui.h"
+#include "generated_fonts/vga_font_30.h"
+#include "generated_fonts/vga_font_40.h"
+#include "generated_fonts/vga_font_60.h"
 
 // VGA timing constants
 #define H_ACTIVE   655    // (active + frontporch - 1) - one cycle delay for mov
@@ -18,6 +21,10 @@
 #define HSYNC    16
 #define VSYNC    17
 #define RED_PIN  18
+
+//extern const bitmap_font_t g_font_60;
+//extern const bitmap_font_t g_font_40;
+//extern const bitmap_font_t g_font_30;
 
 uint8_t  vga_data_array[GUI_SIZE];
 uint8_t *address_pointer = &vga_data_array[0];
@@ -90,18 +97,14 @@ void vga_init(void)
 // Font table
 // ---------------------------------------------------------------------------
 
-extern const bitmap_font_t g_font_60;
-extern const bitmap_font_t g_font_40;
-extern const bitmap_font_t g_font_30;
-
 static const bitmap_font_t *get_font(font_id_t id)
 {
     switch (id)
     {
-        case FONT_60: return &g_font_60;
-        case FONT_40: return &g_font_40;
-        case FONT_30: return &g_font_30;
-        default:      return &g_font_30;
+        case FONT_60: return &vga_font_60;
+        case FONT_40: return &vga_font_40;
+        case FONT_30: return &vga_font_30;
+        default:      return &vga_font_30;
     }
 }
 

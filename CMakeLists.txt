@@ -54,6 +54,11 @@ pico_generate_pio_header(vga_pio ${CMAKE_CURRENT_LIST_DIR}/hsync.pio)
 pico_generate_pio_header(vga_pio ${CMAKE_CURRENT_LIST_DIR}/vsync.pio)
 pico_generate_pio_header(vga_pio ${CMAKE_CURRENT_LIST_DIR}/rgb.pio)
 
+target_include_directories(vga_pio PRIVATE
+  ${CMAKE_CURRENT_LIST_DIR}
+  ${CMAKE_CURRENT_LIST_DIR}/generated_fonts
+)
+
 # must match with executable name
 target_link_libraries(vga_pio PRIVATE 
   pico_stdlib 
