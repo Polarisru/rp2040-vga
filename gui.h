@@ -18,6 +18,7 @@ extern uint8_t *address_pointer;
 #define CYAN    6
 #define WHITE   7
 
+void vga_init(void);
 void drawPixel(int x, int y, char color);
 void drawPictureFast(int dst_x, int dst_y, const uint8_t *pic, int pic_width, int pic_height);
 void draw_text(int x, int y, const char *text, font_id_t font_id, uint8_t color);
