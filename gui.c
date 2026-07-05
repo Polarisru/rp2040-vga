@@ -19,10 +19,7 @@
 #define VSYNC    17
 #define RED_PIN  18
 
-// Length of the pixel array: 640*480 pixels / 2 pixels per byte
-#define TXCOUNT 153600
-
-uint8_t  vga_data_array[TXCOUNT];
+uint8_t  vga_data_array[GUI_SIZE];
 uint8_t *address_pointer = &vga_data_array[0];
 
 // ---------------------------------------------------------------------------
@@ -60,7 +57,7 @@ void vga_init(void)
         rgb_chan_0, &c0,
         &pio->txf[rgb_sm],  // write: RGB PIO TX FIFO
         &vga_data_array,    // read:  pixel color array
-        TXCOUNT,
+        GUI_SIZE,
         false
     );
 
@@ -114,9 +111,10 @@ static const bitmap_font_t *get_font(font_id_t id)
 
 static void drawPixelMasked(int x, int y, uint8_t color)
 {
-    if (x < 0 || x >= 640 || y < 0 || y >= 480) return;
+    if (x < 0 || x >= GUI_WIDTH || y < 0 || y >= GUI_HEIGHT) 
+      return;
 
-    int pixel = y * 640 + x;
+    int pixel = y * GUI_WIDTH + x;
     uint8_t *p = &vga_data_array[pixel >> 1];
     color &= 0x07;
 
@@ -154,14 +152,23 @@ static void draw_char(int x, int y, char c, const bitmap_font_t *font, uint8_t c
 // Public API
 // ---------------------------------------------------------------------------
 
+void fill_screen(uint8_t color)
+{
+    memset(vga_data_array, (color & 0x07) | ((color & 0x07) << 3), GUI_SIZE);
+}
+
 void drawPixel(int x, int y, char color)
 {
-    if (x > 639) x = 639;
-    if (x < 0)   x = 0;
-    if (y < 0)   y = 0;
-    if (y > 479) y = 479;
+    if (x >= GUI_WIDTH) 
+      x = GUI_WIDTH - 1;
+    if (x < 0)   
+      x = 0;
+    if (y < 0)   
+      y = 0;
+    if (y >= GUI_HEIGHT) 
+      y = GUI_HEIGHT - 1;
 
-    int pixel = (640 * y) + x;
+    int pixel = (GUI_WIDTH * y) + x;
 
     if (pixel & 1)
         vga_data_array[pixel >> 1] |= (color << 3);
@@ -174,16 +181,23 @@ void drawPictureFast(int dst_x, int dst_y,
                      int pic_width,
                      int pic_height)
 {
-    if (pic == NULL) return;
-    if (pic_width <= 0 || pic_height <= 0) return;
-    if (dst_x < 0 || dst_y < 0) return;
-    if ((dst_x + pic_width)  > 640) return;
-    if ((dst_y + pic_height) > 480) return;
-    if ((dst_x    & 1) != 0) return;
-    if ((pic_width & 1) != 0) return;
+    if (pic == NULL) 
+      return;
+    if (pic_width <= 0 || pic_height <= 0) 
+      return;
+    if (dst_x < 0 || dst_y < 0) 
+      return;
+    if ((dst_x + pic_width)  > GUI_WIDTH) 
+      return;
+    if ((dst_y + pic_height) > GUI_HEIGHT) 
+      return;
+    if ((dst_x & 1) != 0) 
+      return;
+    if ((pic_width & 1) != 0) 
+      return;
 
     const int src_bytes_per_row = pic_width >> 1;
-    const int dst_bytes_per_row = 640 >> 1;
+    const int dst_bytes_per_row = GUI_WIDTH >> 1;
 
     for (int y = 0; y < pic_height; y++)
     {
