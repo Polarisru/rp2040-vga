@@ -30,8 +30,8 @@
 
 typedef struct
 {
-    uint16_t max_lines;
-    uint16_t font_height;
+    uint8_t max_lines;
+    uint8_t font;
 } logic_context_t;
 
 static void logic_on_uart_message(const uart_rx_message_t *message, void *user_ctx)
@@ -42,16 +42,17 @@ static void logic_on_uart_message(const uart_rx_message_t *message, void *user_c
     {
         case UART_RX_LINE_TYPE_HEADER:
             logic->max_lines  = message->data.header.number_of_lines;
-            logic->font_height = message->data.header.font_height;
+            logic->font = message->data.header.font;
             break;
 
         case UART_RX_LINE_TYPE_TEXT:
             if (message->line_index <= logic->max_lines)
             {
-                const char *text  = message->data.text.text;
-                uint32_t    color = message->data.text.color;
-                (void)text;
-                (void)color;
+                draw_text(10,
+                      10 + (message->line_index - 1) * get_font_height((font_id_t)logic->font),
+                      message->data.text.text,
+                      (font_id_t)logic->font,
+                      message->data.draw_text.color);
             }
             break;
 
@@ -66,6 +67,15 @@ static void logic_on_uart_message(const uart_rx_message_t *message, void *user_c
                       message->data.rect.y2,
                       message->data.rect.color);
             break;
+            
+        case UART_RX_CMD_BOX:
+            draw_box(message->data.box.x1,
+                       message->data.box.y1,
+                       message->data.box.x2,
+                       message->data.box.y2,
+                       message->data.box.width,
+                       message->data.box.color);
+            break;            
 
         case UART_RX_CMD_TEXT:
             draw_text(message->data.draw_text.x,

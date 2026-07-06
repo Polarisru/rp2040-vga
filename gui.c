@@ -108,6 +108,17 @@ static const bitmap_font_t *get_font(font_id_t id)
     }
 }
 
+uint16_t get_font_height(font_id_t id)
+{
+    switch (id)
+    {
+        case FONT_64: return 64;
+        case FONT_48: return 48;
+        case FONT_32: return 32;
+        default:      return 32;
+    }
+}
+
 // ---------------------------------------------------------------------------
 // Internal helpers
 // ---------------------------------------------------------------------------
@@ -173,6 +184,33 @@ void draw_rect(int x1, int y1, int x2, int y2, uint8_t color)
     for (int y = y1; y <= y2; y++)
         for (int x = x1; x <= x2; x++)
             drawPixelMasked(x, y, color);
+}
+
+void draw_box(int x1, int y1, int x2, int y2, uint8_t width, uint8_t color)
+{
+    if (width == 0) return;
+
+    if (x1 > x2) { int t = x1; x1 = x2; x2 = t; }
+    if (y1 > y2) { int t = y1; y1 = y2; y2 = t; }
+
+    int rect_w = x2 - x1 + 1;
+    int rect_h = y2 - y1 + 1;
+    if (rect_w <= 0 || rect_h <= 0) return;
+
+    // Clamp thickness so opposite strips never overlap/cross
+    int wv = width;
+    if (wv * 2 > rect_h) wv = (rect_h + 1) / 2;
+
+    int wh = width;
+    if (wh * 2 > rect_w) wh = (rect_w + 1) / 2;
+
+    // Top and bottom strips (full width)
+    draw_rect(x1, y1, x2, y1 + wv - 1, color);
+    draw_rect(x1, y2 - wv + 1, x2, y2, color);
+
+    // Left and right strips (only the middle region, between top/bottom strips)
+    draw_rect(x1, y1 + wv, x1 + wh - 1, y2 - wv, color);
+    draw_rect(x2 - wh + 1, y1 + wv, x2, y2 - wv, color);
 }
 
 void drawPixel(int x, int y, char color)

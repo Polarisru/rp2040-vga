@@ -24,8 +24,10 @@ extern uint8_t *address_pointer;
 #define WHITE   7
 
 void vga_init(void);
+uint16_t get_font_height(font_id_t id);
 void fill_screen(uint8_t color);
 void draw_rect(int x1, int y1, int x2, int y2, uint8_t color);
+void draw_box(int x1, int y1, int x2, int y2, uint8_t width, uint8_t color);
 void drawPixel(int x, int y, char color);
 void drawPictureFast(int dst_x, int dst_y, const uint8_t *pic, int pic_width, int pic_height);
 void draw_text(int x, int y, const char *text, font_id_t font_id, uint8_t color);

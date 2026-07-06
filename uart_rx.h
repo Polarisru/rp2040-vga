@@ -8,11 +8,12 @@
 
 typedef enum
 {
-    UART_RX_LINE_TYPE_HEADER = 0,   /* 0:<num_lines>:<font_height>          */
-    UART_RX_LINE_TYPE_TEXT   = 1,   /* <N>:<text>:<color>                   */
+    UART_RX_LINE_TYPE_HEADER = 0,   /* 0:<num_lines>:<font>                 */
+    UART_RX_LINE_TYPE_TEXT   = 1,   /* <N>:<color>:<text>                   */
     UART_RX_CMD_FILL         = 2,   /* F:<color>                            */
-    UART_RX_CMD_RECT         = 3,   /* R:<x1>:<y1>:<x2>:<y2>:<color>       */
-    UART_RX_CMD_TEXT         = 4,   /* T:<x>:<y>:<color>:<font>:<text>      */
+    UART_RX_CMD_RECT         = 3,   /* R:<x1>:<y1>:<x2>:<y2>:<color>        */
+    UART_RX_CMD_BOX          = 4,   /* B:<x1>:<y1>:<x2>:<y2>:<width>:<color> */
+    UART_RX_CMD_TEXT         = 5,   /* T:<x>:<y>:<color>:<font>:<text>      */
 } uart_rx_line_type_t;
 
 typedef struct
@@ -23,13 +24,13 @@ typedef struct
     {
         struct
         {
-            uint16_t number_of_lines;
-            uint16_t font_height;
+            uint8_t number_of_lines;
+            uint8_t font;
         } header;
         struct
         {
             const char *text;
-            uint32_t    color;
+            uint8_t    color;
         } text;
         struct
         {
@@ -40,6 +41,12 @@ typedef struct
             uint16_t x1, y1, x2, y2;
             uint8_t  color;         /* 0..7 */
         } rect;
+        struct
+        {
+            uint16_t x1, y1, x2, y2;
+            uint8_t  width;
+            uint8_t  color;         /* 0..7 */
+        } box;
         struct
         {
             uint16_t    x, y;

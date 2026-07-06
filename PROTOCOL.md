@@ -18,16 +18,16 @@ All numeric fields are **unsigned decimal integers** — no leading zeros, no sp
 
 Announces the start of a new text frame.
 
-| Field        | Type   | Range    | Description                              |
-|--------------|--------|----------|------------------------------------------|
-| `num_lines`  | uint16 | 1..65535 | Number of text lines that will follow    |
-| `font_height`| uint16 | 1..65535 | Font height hint (informational)         |
+| Field        | Type   | Range    | Description                               |
+|--------------|--------|----------|-------------------------------------------|
+| `num_lines`  | uint16 | 1..65535 | Number of text lines that will follow     |
+| `font`       | uint8  | 0..2     | Font size (see [Font table](#font-table)) |
 
 Must be sent before any numbered text lines. Resets the receiver's line counter.
 
 **Example**
 ```
-0:4:30
+0:4:2
 ```
 
 ---
@@ -43,15 +43,15 @@ Draws a line of text at a logical row index. Position on screen is determined by
 | Field   | Type   | Range    | Description                                                   |
 |---------|--------|----------|---------------------------------------------------------------|
 | `N`     | uint16 | 1..65535 | Line index (must be ≤ `num_lines` from the current header)    |
+| `color` | uint8  | 0..7     | VGA color index (see [Color table](#color-table))             |
 | `text`  | string | —        | Arbitrary text; may contain colons                            |
-| `color` | uint32 | 0..7     | VGA color index (see [Color table](#color-table))             |
 
 The parser splits on the **last** colon to locate `color`, so `text` may contain colons freely.
 
 **Example**
 ```
-1:Hello, world!:7
-2:Status: OK:2
+1:7:Hello, world!
+2:3:Status: OK
 ```
 
 ---
