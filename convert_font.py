@@ -7,7 +7,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 ASCII_FIRST = 32
 ASCII_LAST = 126
-SIZES = [30, 40, 60]
+SIZES = [32, 48, 64]
 
 
 def sanitize_name(name: str) -> str:

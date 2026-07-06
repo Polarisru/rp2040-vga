@@ -8,9 +8,9 @@
 #include "rgb.pio.h"
 #include "fonts.h"
 #include "gui.h"
-#include "generated_fonts/vga_font_30.h"
-#include "generated_fonts/vga_font_40.h"
-#include "generated_fonts/vga_font_60.h"
+#include "generated_fonts/vga_font_32.h"
+#include "generated_fonts/vga_font_48.h"
+#include "generated_fonts/vga_font_64.h"
 
 // VGA timing constants
 #define H_ACTIVE   655    // (active + frontporch - 1) - one cycle delay for mov
@@ -101,10 +101,10 @@ static const bitmap_font_t *get_font(font_id_t id)
 {
     switch (id)
     {
-        case FONT_60: return &vga_font_60;
-        case FONT_40: return &vga_font_40;
-        case FONT_30: return &vga_font_30;
-        default:      return &vga_font_30;
+        case FONT_64: return &vga_font_64;
+        case FONT_48: return &vga_font_48;
+        case FONT_32: return &vga_font_32;
+        default:      return &vga_font_32;
     }
 }
 
@@ -133,18 +133,19 @@ static void draw_char(int x, int y, char c, const bitmap_font_t *font, uint8_t c
     if ((uint8_t)c < font->first_char || (uint8_t)c > font->last_char) return;
 
     uint16_t glyph_index = (uint8_t)c - font->first_char;
-    uint16_t bit_offset  = font->offsets[glyph_index];
+    uint16_t byte_offset  = font->offsets[glyph_index];   // now a BYTE offset
     uint8_t  glyph_width  = font->widths[glyph_index];
     uint8_t  glyph_height = font->height;
+
+    uint16_t row_bytes = (glyph_width + 7) / 8;
 
     for (uint8_t gy = 0; gy < glyph_height; gy++)
     {
         for (uint8_t gx = 0; gx < glyph_width; gx++)
         {
-            uint32_t bit_index = bit_offset + (uint32_t)gy * glyph_width + gx;
-            uint8_t  byte      = font->bitmap[bit_index >> 3];
-            uint8_t  bit       = (byte >> (7 - (bit_index & 7))) & 0x01;
-
+            uint32_t byte_index = byte_offset + (uint32_t)gy * row_bytes + (gx >> 3);
+            uint8_t  byte       = font->bitmap[byte_index];
+            uint8_t  bit        = (byte >> (7 - (gx & 7))) & 0x01;
             if (bit)
                 drawPixelMasked(x + gx, y + gy, color);
         }

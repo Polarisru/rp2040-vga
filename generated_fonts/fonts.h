@@ -19,9 +19,9 @@ typedef struct
 
 typedef enum
 {
-    FONT_60 = 0,
-    FONT_40,
-    FONT_30
+    FONT_64 = 0,
+    FONT_48,
+    FONT_32
 } font_id_t;
 
 #endif

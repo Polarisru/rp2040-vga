@@ -108,7 +108,8 @@ int main()
                  &logic);
                  
     fill_screen(WHITE);
-    drawPictureFast((GUI_WIDTH - 433) / 2, (GUI_HEIGHT - 263) / 2, volz, 433, 263);
+    drawPictureFast((GUI_WIDTH - 436) / 2, (GUI_HEIGHT - 264) / 2, volz, 436, 264);
+    draw_text(100, 360, "BlaBlaBla", FONT_64, RED);
 
     /*char colors[8] = {BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE};
     int index    = 0;
