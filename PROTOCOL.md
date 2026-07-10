@@ -101,6 +101,32 @@ R:10:20:200:100:3
 
 ---
 
+### `B` — Draw box (frame)
+
+```
+B:<x1>:<y1>:<x2>:<y2>:<width>:<color>
+```
+
+Draws a box. Corner order does not matter — coordinates are sorted internally.  
+Out-of-bounds coordinates are clamped to the screen edges (0..639 / 0..479).
+
+| Field   | Type   | Range  | Description                                   |
+|---------|--------|--------|-----------------------------------------------|
+| `x1`    | uint16 | 0..639 | X coordinate of the first corner             |
+| `y1`    | uint16 | 0..479 | Y coordinate of the first corner             |
+| `x2`    | uint16 | 0..639 | X coordinate of the opposite corner          |
+| `y2`    | uint16 | 0..479 | Y coordinate of the opposite corner          |
+| `width` | uint8  | 0..255 | Width of the line                            |
+| `color` | uint8  | 0..7   | VGA color index (see [Color table](#color-table)) |
+
+**Example**
+```
+B:10:20:200:100:2:3
+```
+*(draws a yellow box from (10,20) to (200,100)) with a line width of 2 pixels*
+
+---
+
 ### `T` — Draw text
 
 ```
@@ -147,9 +173,9 @@ Colors are 3-bit RGB (1 bit per channel). The VGA DAC uses 330 Ω resistors on G
 
 | Index | Glyph height |
 |-------|--------------|
-| 0     | 60 px        |
-| 1     | 40 px        |
-| 2     | 30 px        |
+| 0     | 64 px        |
+| 1     | 48 px        |
+| 2     | 32 px        |
 
 ---
 
