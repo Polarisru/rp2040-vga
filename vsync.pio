@@ -1,5 +1,4 @@
 ;
-; Hunter Adams (vha3@cornell.edu)
 ; VSync generation for VGA driver
 
 ; Program name
@@ -19,7 +18,7 @@ pull block                        ; Pull from FIFO to OSR (only once)
 .wrap_target                      ; Program wraps to here
 
 ; ACTIVE
-mov x, osr                        ; Copy value from OSR to x scratch register (479 = (active - 1))
+mov x, osr                        ; Copy value from OSR to x scratch register (599 = (active - 1))
 activefront:
     wait 1 irq 0                  ; Wait for hsync to go high
     irq 1                         ; Signal that we're in active mode
@@ -31,19 +30,19 @@ frontporch:
 
 ; SYNC PULSE
 set pins, 0                       ; Set pin low
-wait 1 irq 0                      ; Wait for one line
-wait 1 irq 0                      ; Wait for a second line
-wait 1 irq 0                      ; Wait for a third line
-wait 1 irq 0                      ; Wait for a fourth line
+set y, 3
+pulse:
+;    wait 1 irq 0                      ; Wait for one line
+;    wait 1 irq 0                      ; Wait for a second line
+;    wait 1 irq 0                      ; Wait for a third line
+    wait 1 irq 0                      ; Wait for a fourth line
+    jmp y-- pulse
 
 ; BACKPORCH
 set y, 22                         ; First part of back porch into y scratch register (and delays a cycle)
-;set pins, 1                      ; Raise high for back porch (delaying a set cycle) - REPLACED WITH SIDESET
 backporch:
     wait 1 irq 0   side 1         ; Wait for hsync to go high - SIDESET REPLACEMENT HERE
     jmp y-- backporch             ; Remain in backporch, decrementing counter
-
-;wait 1 irq 0                      ; Wait for final (23rd) backporch line (eliminated)
 
 .wrap                             ; Program wraps from here
 
