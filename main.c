@@ -18,6 +18,7 @@
  */
 #include <stdio.h>
 #include "pico/stdlib.h"
+#include "hardware/clocks.h"
 #include "gui.h"
 #include "volz.h"
 #include "uart_rx.h"
@@ -102,6 +103,8 @@ int main()
     static char rx_buffer[UART_RX_BUFFER_SIZE];
     static uart_rx_t uart_rx;
     static logic_context_t logic = {0};
+    
+    set_sys_clock_khz(126000, true);
 
     stdio_init_all();
     vga_init();
@@ -119,7 +122,6 @@ int main()
                  
     fill_screen(WHITE);
     drawPictureFast((GUI_WIDTH - 436) / 2, (GUI_HEIGHT - 264) / 2, volz, 436, 264);
-    draw_text(100, 360, "BlaBlaBla", FONT_64, RED);
 
     /*char colors[8] = {BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE};
     int index    = 0;
