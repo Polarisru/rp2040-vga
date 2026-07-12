@@ -6,14 +6,14 @@
 ; Program name
 .program hsync
 
-; frontporch: 16 clocks (0.64us at 25MHz)
-; sync pulse: 96 clocks (3.84us at 25MHz)
-; back porch: 48 clocks (1.92us at 25MHz)
-; active for: 640 clcks (25.6us at 25MHz)
+; frontporch: 40 clocks (0.64us at 25MHz)
+; sync pulse: 128 clocks (3.84us at 25MHz)
+; back porch: 88 clocks (1.92us at 25MHz)
+; active for: 800 clcks (25.6us at 25MHz)
 ;
-; High for 704 cycles (28.16us at 25MHz)
-; Low  for 96  cycles (3.84us at 25MHz)
-; Total period of 800 cycles (32us at 25MHz)
+; High for 928 cycles (28.16us at 25MHz)
+; Low  for 128  cycles (3.84us at 25MHz)
+; Total period of 1056 cycles (32us at 25MHz)
 ;
 
 
@@ -21,7 +21,7 @@ pull block              ; Pull from FIFO to OSR (only happens once)
 .wrap_target            ; Program wraps to here
 
 ; ACTIVE + FRONTPORCH
-mov x, osr              ; Copy value from OSR to x scratch register (655 = (active + frontporch - 1))
+mov x, osr              ; Copy value from OSR to x scratch register (839 = (active + frontporch - 1))
 activeporch:
    jmp x-- activeporch  ; Remain high in active mode and front porch
 
@@ -30,12 +30,13 @@ pulse:
     set pins, 0 [31]    ; Low for hsync pulse (32 cycles)
     set pins, 0 [31]    ; Low for hsync pulse (64 cycles)
     set pins, 0 [31]    ; Low for hsync pulse (96 cycles)
+    set pins, 0 [31]    ; Low for hsync pulse (128 cycles)
 
 ; BACKPORCH
 backporch:
     set pins, 1 [31]    ; High for back porch (32 cycles)
-    set pins, 1 [12]    ; High for back porch (45 cycles)
-    irq 0       [1]     ; Set IRQ to signal end of line (47 cycles)
+    set pins, 1 [31]    ; High for back porch (64 cycles)
+    irq 0       [23]     ; Set IRQ to signal end of line (88 cycles)
 .wrap
 
 
@@ -54,8 +55,8 @@ static inline void hsync_program_init(PIO pio, uint sm, uint offset, uint pin) {
     // parameter to this function.
     sm_config_set_set_pins(&c, pin, 1);
 
-    // Set clock division (div by 5 for 25 MHz state machine)
-    sm_config_set_clkdiv(&c, 5) ;
+    // Set clock division (div by 3 for 40 MHz state machine)
+    sm_config_set_clkdiv(&c, 3) ;
 
     // Set this pin's GPIO function (connect PIO to the pad)
     pio_gpio_init(pio, pin);

@@ -104,7 +104,7 @@ int main()
     static uart_rx_t uart_rx;
     static logic_context_t logic = {0};
     
-    set_sys_clock_khz(126000, true);
+    set_sys_clock_khz(120000, true);
 
     stdio_init_all();
     vga_init();

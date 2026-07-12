@@ -13,9 +13,9 @@
 #include "generated_fonts/vga_font_64.h"
 
 // VGA timing constants
-#define H_ACTIVE   655    // (active + frontporch - 1) - one cycle delay for mov
-#define V_ACTIVE   479    // (active - 1)
-#define RGB_ACTIVE 319    // (horizontal active)/2 - 1
+#define H_ACTIVE   839    // (active + frontporch - 1) - one cycle delay for mov
+#define V_ACTIVE   599    // (active - 1)
+#define RGB_ACTIVE 399    // (horizontal active)/2 - 1
 
 // GPIO pin assignments
 #define HSYNC    16

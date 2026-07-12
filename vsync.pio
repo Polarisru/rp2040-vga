@@ -6,10 +6,10 @@
 .program vsync
 .side_set 1 opt
 
-; frontporch: 11(10)  lines
-; sync pulse: 2   lines
-; back porch: 31(33)  lines (perhaps we try 32, since that's easier)
-; active for: 480 lines
+; frontporch: 1   lines
+; sync pulse: 4   lines
+; back porch: 23  lines
+; active for: 600 lines
 ;
 ; Code size could be reduced with side setting
 
@@ -25,25 +25,25 @@ activefront:
     irq 1                         ; Signal that we're in active mode
     jmp x-- activefront           ; Remain in active mode, decrementing counter
 
-; FRONTPORCH
-set y, 10                         ;
+; FRONTPORCH (1 line only)
 frontporch:
     wait 1 irq 0                  ;
-    jmp y-- frontporch            ;
 
 ; SYNC PULSE
 set pins, 0                       ; Set pin low
 wait 1 irq 0                      ; Wait for one line
 wait 1 irq 0                      ; Wait for a second line
+wait 1 irq 0                      ; Wait for a third line
+wait 1 irq 0                      ; Wait for a fourth line
 
 ; BACKPORCH
-set y, 30                         ; First part of back porch into y scratch register (and delays a cycle)
+set y, 22                         ; First part of back porch into y scratch register (and delays a cycle)
 ;set pins, 1                      ; Raise high for back porch (delaying a set cycle) - REPLACED WITH SIDESET
 backporch:
     wait 1 irq 0   side 1         ; Wait for hsync to go high - SIDESET REPLACEMENT HERE
     jmp y-- backporch             ; Remain in backporch, decrementing counter
 
-;wait 1 irq 0                      ; Wait for final (33rd) backporch line (eliminated)
+;wait 1 irq 0                      ; Wait for final (23rd) backporch line (eliminated)
 
 .wrap                             ; Program wraps from here
 
@@ -63,8 +63,8 @@ static inline void vsync_program_init(PIO pio, uint sm, uint offset, uint pin) {
     sm_config_set_set_pins(&c, pin, 1);
     sm_config_set_sideset_pins(&c, pin);
 
-    // Set clock division (div by 5 for 25 MHz state machine)
-    sm_config_set_clkdiv(&c, 5) ;
+    // Set clock division (div by 3 for 40 MHz state machine)
+    sm_config_set_clkdiv(&c, 3) ;
 
     // Set this pin's GPIO function (connect PIO to the pad)
     pio_gpio_init(pio, pin);

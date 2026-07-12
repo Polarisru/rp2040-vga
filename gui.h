@@ -4,8 +4,8 @@
 #include <stdint.h>
 #include "fonts.h"
 
-#define GUI_WIDTH     640
-#define GUI_HEIGHT    480
+#define GUI_WIDTH     800
+#define GUI_HEIGHT    600
 // Length of the pixel array: 640*480 pixels / 2 pixels per byte
 #define GUI_SIZE      (GUI_WIDTH * GUI_HEIGHT / 2)
 
