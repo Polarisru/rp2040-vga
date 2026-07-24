@@ -27,7 +27,7 @@ else()
 endif()
 
 # give the project a name (anything you want)
-project(vga-pio C CXX ASM)
+project(rp2040-vga C CXX ASM)
 set(CMAKE_C_STANDARD   11)
 set(CMAKE_CXX_STANDARD 17)
 
@@ -35,9 +35,6 @@ set(CMAKE_CXX_STANDARD 17)
 pico_sdk_init()
 
 #######
-
-# name anything you want
-#add_executable(vga_pio)
 
 set(FW_DIR ${CMAKE_CURRENT_SOURCE_DIR}/fw)
 
@@ -49,20 +46,20 @@ set(sources
 
 # must match with executable name and source file names
 #target_sources(vga_pio PRIVATE sources)
-add_executable(vga_pio ${sources})
+add_executable(${PROJECT_NAME} ${sources})
 
 # must match with pio filename and executable name from above
-pico_generate_pio_header(vga_pio ${FW_DIR}/hsync.pio)
-pico_generate_pio_header(vga_pio ${FW_DIR}/vsync.pio)
-pico_generate_pio_header(vga_pio ${FW_DIR}/rgb.pio)
+pico_generate_pio_header(${PROJECT_NAME} ${FW_DIR}/hsync.pio)
+pico_generate_pio_header(${PROJECT_NAME} ${FW_DIR}/vsync.pio)
+pico_generate_pio_header(${PROJECT_NAME} ${FW_DIR}/rgb.pio)
 
-target_include_directories(vga_pio PRIVATE
-  ${FW_DIR}/
+target_include_directories(${PROJECT_NAME} PRIVATE
+  ${FW_DIR}
   ${FW_DIR}/generated_fonts
 )
 
 # must match with executable name
-target_link_libraries(vga_pio PRIVATE 
+target_link_libraries(${PROJECT_NAME} PRIVATE 
   pico_stdlib 
   hardware_pio 
   hardware_dma
@@ -70,4 +67,4 @@ target_link_libraries(vga_pio PRIVATE
 )
 
 # must match with executable name
-pico_add_extra_outputs(vga_pio)
+pico_add_extra_outputs(${PROJECT_NAME})
