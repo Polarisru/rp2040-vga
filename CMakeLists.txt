@@ -39,10 +39,12 @@ pico_sdk_init()
 # name anything you want
 #add_executable(vga_pio)
 
+set(FW_DIR ${CMAKE_CURRENT_SOURCE_DIR}/fw)
+
 set(sources
-  main.c
-  gui.c
-  uart_rx.c
+  ${FW_DIR}/main.c
+  ${FW_DIR}/gui.c
+  ${FW_DIR}/uart_rx.c
 )
 
 # must match with executable name and source file names
@@ -50,13 +52,13 @@ set(sources
 add_executable(vga_pio ${sources})
 
 # must match with pio filename and executable name from above
-pico_generate_pio_header(vga_pio ${CMAKE_CURRENT_LIST_DIR}/hsync.pio)
-pico_generate_pio_header(vga_pio ${CMAKE_CURRENT_LIST_DIR}/vsync.pio)
-pico_generate_pio_header(vga_pio ${CMAKE_CURRENT_LIST_DIR}/rgb.pio)
+pico_generate_pio_header(vga_pio ${FW_DIR}/hsync.pio)
+pico_generate_pio_header(vga_pio ${FW_DIR}/vsync.pio)
+pico_generate_pio_header(vga_pio ${FW_DIR}/rgb.pio)
 
 target_include_directories(vga_pio PRIVATE
-  ${CMAKE_CURRENT_LIST_DIR}
-  ${CMAKE_CURRENT_LIST_DIR}/generated_fonts
+  ${FW_DIR}/
+  ${FW_DIR}/generated_fonts
 )
 
 # must match with executable name
